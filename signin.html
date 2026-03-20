@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sign In — AuthGuard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#050810;--bg2:#090d18;--bg3:#0d1220;--surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.07);--cyan:#00d9ff;--cyan-dim:rgba(0,217,255,.12);--violet:#7c3aed;--green:#00e5a0;--text:#eef1f8;--text2:#8b9ab5;--text3:#4a5878;--border:rgba(255,255,255,.08);--border2:rgba(0,217,255,.2);--r:12px;--font-h:'Syne',sans-serif;--font-b:'DM Sans',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font-b);background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100vh}
+body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+/* NAV */
+nav{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5%,60px);border-bottom:1px solid var(--border);position:relative;z-index:10;background:rgba(5,8,16,.9);backdrop-filter:blur(20px)}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;font-family:var(--font-h);font-size:1.15rem;font-weight:700;color:var(--text)}
+.logo-mark{width:30px;height:30px;background:linear-gradient(135deg,var(--cyan),var(--violet));border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.nav-back{text-decoration:none;color:var(--text2);font-size:.85rem;display:flex;align-items:center;gap:6px;transition:color .2s}
+.nav-back:hover{color:var(--cyan)}
+.nav-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* LAYOUT */
+.page{flex:1;display:grid;grid-template-columns:1fr 1fr;position:relative;z-index:1}
+/* LEFT PANEL */
+.left-panel{background:var(--bg2);border-right:1px solid var(--border);padding:clamp(40px,6vw,80px);display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.lp-glow{position:absolute;top:-100px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(0,217,255,.07),transparent 60%);pointer-events:none}
+.lp-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,217,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,255,.03) 1px,transparent 1px);background-size:40px 40px}
+.lp-content{position:relative;z-index:1}
+.lp-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.2);border-radius:100px;padding:5px 14px;font-size:.75rem;font-weight:600;color:var(--green);margin-bottom:32px}
+.lp-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.lp-title{font-family:var(--font-h);font-size:clamp(1.8rem,3vw,2.6rem);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:16px}
+.lp-title span{background:linear-gradient(90deg,var(--cyan),#60a5fa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.lp-sub{color:var(--text2);font-size:.95rem;line-height:1.75;font-weight:300;margin-bottom:48px;max-width:380px}
+.lp-perks{display:flex;flex-direction:column;gap:18px}
+.perk{display:flex;align-items:flex-start;gap:14px}
+.perk-icon{width:36px;height:36px;border-radius:9px;background:var(--cyan-dim);border:1px solid rgba(0,217,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.perk-icon svg{width:16px;height:16px;stroke:var(--cyan);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.perk-text strong{display:block;font-weight:600;font-size:.875rem;margin-bottom:2px}
+.perk-text span{color:var(--text2);font-size:.82rem;font-weight:300}
+/* RIGHT PANEL */
+.right-panel{padding:clamp(40px,6vw,80px);display:flex;flex-direction:column;justify-content:center;align-items:center}
+.auth-box{width:100%;max-width:420px}
+/* TABS */
+.auth-tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:32px}
+.tab-btn{flex:1;padding:10px;border:none;background:none;cursor:pointer;font-family:var(--font-h);font-size:.875rem;font-weight:600;color:var(--text2);border-radius:9px;transition:all .25s;letter-spacing:.01em}
+.tab-btn.active{background:var(--cyan);color:#000;box-shadow:0 0 16px rgba(0,217,255,.3)}
+/* FORM */
+.auth-title{font-family:var(--font-h);font-size:1.4rem;font-weight:800;letter-spacing:-.03em;margin-bottom:6px}
+.auth-subtitle{color:var(--text2);font-size:.875rem;font-weight:300;margin-bottom:28px}
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:.8rem;font-weight:600;color:var(--text2);margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase}
+.form-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--text);font-family:var(--font-b);font-size:.9rem;outline:none;transition:border-color .25s,background .25s}
+.form-input:focus{border-color:rgba(0,217,255,.45);background:rgba(0,217,255,.04)}
+.form-input::placeholder{color:var(--text3)}
+.form-input-wrap{position:relative}
+.form-input-wrap .form-input{padding-right:44px}
+.input-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text3);cursor:pointer;transition:color .2s}
+.input-icon:hover{color:var(--cyan)}
+.input-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-helper{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;margin-top:-8px}
+.form-check{display:flex;align-items:center;gap:8px;cursor:pointer}
+.form-check input{width:14px;height:14px;accent-color:var(--cyan)}
+.form-check span{font-size:.82rem;color:var(--text2)}
+.form-link{font-size:.82rem;color:var(--cyan);text-decoration:none;transition:opacity .2s}
+.form-link:hover{opacity:.75}
+.btn-submit{width:100%;padding:14px;background:var(--cyan);color:#000;font-family:var(--font-h);font-weight:700;font-size:.9rem;border:none;border-radius:11px;cursor:pointer;transition:all .25s;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-submit:hover{background:#fff;box-shadow:0 0 28px rgba(0,217,255,.4);transform:translateY(-1px)}
+.btn-submit svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.divider{display:flex;align-items:center;gap:14px;margin:24px 0}
+.divider-line{flex:1;height:1px;background:var(--border)}
+.divider-text{color:var(--text3);font-size:.78rem;font-weight:500;white-space:nowrap}
+.social-btns{display:flex;gap:10px}
+.social-btn{flex:1;padding:11px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-b);font-size:.82rem;color:var(--text2);transition:all .25s;text-decoration:none}
+.social-btn:hover{border-color:rgba(0,217,255,.3);color:var(--text);background:var(--surface2)}
+.social-btn svg{width:16px;height:16px;flex-shrink:0}
+.auth-bottom{text-align:center;margin-top:24px;font-size:.82rem;color:var(--text2)}
+.auth-bottom a{color:var(--cyan);text-decoration:none;font-weight:500}
+/* Password strength */
+.pw-strength{margin-top:8px;height:3px;border-radius:2px;background:var(--border);overflow:hidden;display:none}
+.pw-bar{height:100%;border-radius:2px;transition:width .3s,background .3s}
+/* Panel switch */
+.panel[data-panel]{display:none}
+.panel.active{display:block}
+/* Forgot password */
+#forgot-panel .fp-back{display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--text2);cursor:pointer;background:none;border:none;font-family:var(--font-b);margin-bottom:24px;transition:color .2s}
+#forgot-panel .fp-back:hover{color:var(--cyan)}
+#forgot-panel .fp-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* Toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);color:var(--green);padding:12px 22px;border-radius:10px;font-size:.875rem;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:860px){.page{grid-template-columns:1fr}.left-panel{display:none}}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}.right-panel{padding:32px 20px}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="logo"><div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg></div>AuthGuard</a>
+  <ul class="nav-mid" style="display:flex;align-items:center;gap:24px;list-style:none">
+    <li><a href="verify.html" style="text-decoration:none;color:var(--text2);font-size:.875rem;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">Verify Product</a></li>
+    <li><a href="pricing.html" style="text-decoration:none;color:var(--text2);font-size:.875rem;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">Pricing</a></li>
+    <li><a href="contact.html" style="text-decoration:none;color:var(--text2);font-size:.875rem;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">Contact</a></li>
+  </ul>
+  <a href="index.html" class="nav-back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Back to home</a>
+</nav>
+
+<div class="page">
+  <!-- LEFT -->
+  <div class="left-panel">
+    <div class="lp-glow"></div>
+    <div class="lp-grid"></div>
+    <div class="lp-content">
+      <div class="lp-badge"><span class="dot"></span>14-day free trial — no card needed</div>
+      <h2 class="lp-title">Your brand.<br/><span>Fully protected.</span></h2>
+      <p class="lp-sub">Join hundreds of Nigerian manufacturers using AuthGuard to stop counterfeits, track scan activity, and protect consumer trust.</p>
+      <div class="lp-perks">
+        <div class="perk">
+          <div class="perk-icon"><svg viewBox="0 0 24 24"><path d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5z"/><path d="M13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z"/></svg></div>
+          <div class="perk-text"><strong>Generate encrypted QR codes</strong><span>Unique, non-sequential, tamper-resistant per unit</span></div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon"><svg viewBox="0 0 24 24"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg></div>
+          <div class="perk-text"><strong>Real-time scan analytics</strong><span>Geo heat maps, duplicate detection, fraud alerts</span></div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon"><svg viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg></div>
+          <div class="perk-text"><strong>NDPR-compliant &amp; secure</strong><span>Data stored in Nigeria, fully encrypted at rest</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+    <div class="auth-box">
+      <div class="auth-tabs">
+        <button class="tab-btn active" onclick="switchTab('signin')">Sign In</button>
+        <button class="tab-btn" onclick="switchTab('signup')">Create Account</button>
+      </div>
+
+      <!-- SIGN IN -->
+      <div class="panel active" id="panel-signin">
+        <h2 class="auth-title">Welcome back</h2>
+        <p class="auth-subtitle">Sign in to your AuthGuard dashboard</p>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" placeholder="you@company.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="form-input-wrap">
+            <input class="form-input" type="password" id="pw-signin" placeholder="••••••••"/>
+            <span class="input-icon" onclick="togglePw('pw-signin',this)"><svg viewBox="0 0 24 24"><path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span>
+          </div>
+        </div>
+        <div class="form-helper">
+          <label class="form-check"><input type="checkbox"/><span>Remember me</span></label>
+          <a href="#" class="form-link" onclick="switchPanel('forgot');return false">Forgot password?</a>
+        </div>
+        <button class="btn-submit" onclick="showToast('Signing you in…')">
+          Sign In
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <div class="divider"><div class="divider-line"></div><span class="divider-text">or continue with</span><div class="divider-line"></div></div>
+        <div class="social-btns">
+          <a href="#" class="social-btn"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google</a>
+          <a href="#" class="social-btn"><svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a>
+        </div>
+        <div class="auth-bottom">Don't have an account? <a href="#" onclick="switchTab('signup');return false">Create one free</a></div>
+      </div>
+
+      <!-- SIGN UP -->
+      <div class="panel" id="panel-signup">
+        <h2 class="auth-title">Create your account</h2>
+        <p class="auth-subtitle">Start your 14-day free trial — no card required</p>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name</label><input class="form-input" type="text" placeholder="Chinedu"/></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" type="text" placeholder="Okafor"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Work Email</label><input class="form-input" type="email" placeholder="you@company.com"/></div>
+        <div class="form-group"><label class="form-label">Company Name</label><input class="form-input" type="text" placeholder="FarmPlus Agro Ltd"/></div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="form-input-wrap">
+            <input class="form-input" type="password" id="pw-signup" placeholder="Min. 8 characters" oninput="checkStrength(this)"/>
+            <span class="input-icon" onclick="togglePw('pw-signup',this)"><svg viewBox="0 0 24 24"><path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></span>
+          </div>
+          <div class="pw-strength" id="pw-strength-bar"><div class="pw-bar" id="pw-bar"></div></div>
+        </div>
+        <div class="form-group" style="margin-bottom:24px">
+          <label class="form-check" style="align-items:flex-start;gap:10px">
+            <input type="checkbox" style="margin-top:2px"/>
+            <span style="font-size:.8rem;color:var(--text2);line-height:1.5">I agree to the <a href="#" class="form-link">Terms of Service</a> and <a href="#" class="form-link">Privacy Policy</a>. I understand this platform is NDPR-compliant.</span>
+          </label>
+        </div>
+        <button class="btn-submit" onclick="showToast('Account created! Check your email.')">
+          Create Free Account
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <div class="auth-bottom">Already have an account? <a href="#" onclick="switchTab('signin');return false">Sign in here</a></div>
+      </div>
+
+      <!-- FORGOT PASSWORD -->
+      <div class="panel" id="panel-forgot" style="display:none">
+        <button class="fp-back" onclick="switchPanel('signin')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Back to sign in</button>
+        <h2 class="auth-title">Reset password</h2>
+        <p class="auth-subtitle">Enter your email and we'll send you a reset link</p>
+        <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" type="email" placeholder="you@company.com"/></div>
+        <button class="btn-submit" style="margin-top:8px" onclick="showToast('Reset link sent! Check your inbox.')">
+          Send Reset Link
+          <svg viewBox="0 0 24 24"><path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Auto switch tab based on URL param
+(function(){
+  const p = new URLSearchParams(window.location.search);
+  if(p.get('tab') === 'signup') { 
+    setTimeout(function(){ switchTab('signup'); }, 50);
+  }
+})();
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===(tab==='signin'?0:1)));
+  document.querySelectorAll('.panel[id^="panel-"]').forEach(p=>p.classList.remove('active'));
+  const target=document.getElementById('panel-'+tab);
+  if(target){target.classList.add('active');target.style.display='block';}
+  const forgot=document.getElementById('panel-forgot');
+  if(forgot)forgot.style.display='none';
+}
+function switchPanel(id){
+  ['signin','signup'].forEach(t=>{const el=document.getElementById('panel-'+t);if(el){el.classList.remove('active');el.style.display='none';}});
+  const forgot=document.getElementById('panel-forgot');
+  if(id==='forgot'){if(forgot)forgot.style.display='block';}
+  else{switchTab(id);}
+}
+function togglePw(id,icon){
+  const input=document.getElementById(id);
+  input.type=input.type==='password'?'text':'password';
+  icon.style.color=input.type==='text'?'var(--cyan)':'var(--text3)';
+}
+function checkStrength(input){
+  const bar=document.getElementById('pw-strength-bar');
+  const pw=document.getElementById('pw-bar');
+  bar.style.display='block';
+  const v=input.value;
+  let score=0;
+  if(v.length>=8)score++;if(/[A-Z]/.test(v))score++;if(/[0-9]/.test(v))score++;if(/[^a-zA-Z0-9]/.test(v))score++;
+  const widths=['25%','50%','75%','100%'];
+  const colors=['#ef4444','#fb923c','#facc15','var(--green)'];
+  pw.style.width=score>0?widths[score-1]:'0';
+  pw.style.background=score>0?colors[score-1]:'transparent';
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
